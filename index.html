@@ -1,83 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CryptoTracker - Live Coin Data</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Chart.js for line charts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    
+
     <style>
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 2rem 0;
             margin-bottom: 2rem;
         }
-        
+
         .coin-table {
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
-        
+
         .coin-logo {
             width: 30px;
             height: 30px;
             border-radius: 50%;
         }
-        
+
         .coin-logo-large {
             width: 64px;
             height: 64px;
             border-radius: 50%;
         }
-        
+
         .price-positive {
             color: #28a745;
         }
-        
+
         .price-negative {
             color: #dc3545;
         }
-        
+
         .loading-spinner {
             display: none;
             text-align: center;
             padding: 2rem;
         }
-        
+
         .table-hover tbody tr:hover {
             background-color: #f8f9fa;
             transform: translateY(-1px);
             transition: all 0.2s ease;
             cursor: pointer;
         }
-        
-        .market-cap, .volume {
+
+        .market-cap,
+        .volume {
             font-size: 0.9rem;
         }
-        
+
         .refresh-btn {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 1000;
         }
-        
+
         .detail-card {
             background: white;
             border-radius: 15px;
@@ -85,7 +87,7 @@
             padding: 2rem;
             margin-bottom: 2rem;
         }
-        
+
         .chart-container {
             background: white;
             border-radius: 15px;
@@ -93,7 +95,7 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
-        
+
         .portfolio-card {
             background: white;
             border-radius: 15px;
@@ -101,7 +103,7 @@
             padding: 1.5rem;
             margin-bottom: 1rem;
         }
-        
+
         .notification {
             position: fixed;
             top: 20px;
@@ -109,50 +111,51 @@
             z-index: 1050;
             min-width: 300px;
         }
-        
+
         .back-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             border-radius: 50px;
             padding: 0.5rem 1.5rem;
         }
-        
+
         .add-to-portfolio-btn {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             border: none;
             border-radius: 50px;
             padding: 0.75rem 2rem;
         }
-        
+
         .nav-pills .nav-link.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
+
         @media (max-width: 768px) {
             .table-responsive {
                 font-size: 0.85rem;
             }
-            
+
             .coin-logo {
                 width: 25px;
                 height: 25px;
             }
-            
-            .detail-card, .chart-container {
+
+            .detail-card,
+            .chart-container {
                 padding: 1rem;
                 margin-bottom: 1rem;
             }
         }
-        
+
         .hidden {
             display: none !important;
         }
-        
+
         .portfolio-item {
             border-left: 4px solid #667eea;
             transition: all 0.3s ease;
         }
-        
+
         .portfolio-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
@@ -163,10 +166,11 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Notifications Container -->
     <div id="notificationContainer"></div>
-    
+
     <!-- Header -->
     <div class="header">
         <div class="container">
@@ -184,26 +188,31 @@
                     <button id="loginBtn" class="btn btn-outline-light">
                         <i class="fas fa-user me-2"></i>Login
                     </button>
+                    <button id="logoutBtn" class="btn btn-outline-danger d-none">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Navigation Tabs -->
     <div class="container">
         <ul class="nav nav-pills mb-4" id="mainTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="market-tab" data-bs-toggle="pill" data-bs-target="#market" type="button" role="tab">
+                <button class="nav-link active" id="market-tab" data-bs-toggle="pill" data-bs-target="#market"
+                    type="button" role="tab">
                     <i class="fas fa-chart-line me-2"></i>Market
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="portfolio-tab" data-bs-toggle="pill" data-bs-target="#portfolio" type="button" role="tab">
+                <button class="nav-link" id="portfolio-tab" data-bs-toggle="pill" data-bs-target="#portfolio"
+                    type="button" role="tab">
                     <i class="fas fa-wallet me-2"></i>Portfolio
                 </button>
             </li>
         </ul>
-        
+
         <div class="tab-content" id="mainTabsContent">
             <!-- Market Tab -->
             <div class="tab-pane fade show active" id="market" role="tabpanel">
@@ -214,13 +223,13 @@
                     </div>
                     <p class="mt-3">Fetching live crypto data...</p>
                 </div>
-                
+
                 <!-- Error Alert -->
                 <div id="errorAlert" class="alert alert-danger d-none" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <span id="errorMessage">Failed to load cryptocurrency data. Please try again.</span>
                 </div>
-                
+
                 <!-- Coins List View -->
                 <div id="coinsListView">
                     <div id="coinsTable" class="coin-table d-none">
@@ -242,23 +251,23 @@
                             </table>
                         </div>
                     </div>
-                    
+
                     <!-- Last Updated -->
                     <div id="lastUpdated" class="text-center mt-3 text-muted d-none">
                         <small>Last updated: <span id="updateTime"></span></small>
                     </div>
                 </div>
-                
+
                 <!-- Coin Detail View -->
                 <div id="coinDetailView" class="hidden">
                     <button id="backToList" class="btn btn-primary back-btn mb-4">
                         <i class="fas fa-arrow-left me-2"></i>Back to List
                     </button>
-                    
+
                     <div id="coinDetail" class="detail-card">
                         <!-- Coin detail content will be inserted here -->
                     </div>
-                    
+
                     <!-- Price Chart -->
                     <div id="chartContainer" class="chart-container">
                         <h4 class="mb-3">7-Day Price History</h4>
@@ -266,7 +275,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Portfolio Tab -->
             <div class="tab-pane fade" id="portfolio" role="tabpanel">
                 <div class="row">
@@ -306,7 +315,29 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user me-2"></i>Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="loginForm">
+                        <input type="text" id="username" class="form-control mb-3" placeholder="Username">
+                        <input type="password" id="password" class="form-control mb-3" placeholder="Password">
+                        <button class="btn btn-primary w-100 mb-2" onclick="login()">Login</button>
+                        <button class="btn btn-secondary w-100" onclick="register()">Register</button>
+                        <p id="message" class="mt-3 text-center text-muted"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add to Portfolio Modal -->
     <div class="modal fade" id="addToPortfolioModal" tabindex="-1">
         <div class="modal-dialog">
@@ -339,18 +370,18 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Refresh Button -->
     <button id="refreshBtn" class="btn btn-primary refresh-btn rounded-circle" title="Refresh Data">
         <i class="fas fa-sync-alt"></i>
     </button>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    
+
     <script>
         // Global variables
         let isLoading = false;
@@ -358,11 +389,11 @@
         let currentCoin = null;
         let priceChart = null;
         let portfolio = JSON.parse(localStorage.getItem('cryptoPortfolio') || '[]');
-        
+
         // Utility functions
         function formatNumber(num) {
             if (num === null || num === undefined) return 'N/A';
-            
+
             if (num >= 1e12) {
                 return (num / 1e12).toFixed(2) + 'T';
             } else if (num >= 1e9) {
@@ -375,10 +406,10 @@
                 return num.toLocaleString();
             }
         }
-        
+
         function formatPrice(price) {
             if (price === null || price === undefined) return 'N/A';
-            
+
             if (price < 0.01) {
                 return '€' + price.toFixed(6);
             } else if (price < 1) {
@@ -390,19 +421,19 @@
                 });
             }
         }
-        
+
         function formatPercentage(percent) {
             if (percent === null || percent === undefined) return 'N/A';
-            
+
             const className = percent >= 0 ? 'price-positive' : 'price-negative';
             const icon = percent >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-            
+
             return `<span class="${className}">
                         <i class="fas ${icon} me-1"></i>
                         ${Math.abs(percent).toFixed(2)}%
                     </span>`;
         }
-        
+
         function showNotification(message, type = 'success') {
             const notification = $(`
                 <div class="alert alert-${type} alert-dismissible fade show notification" role="alert">
@@ -411,29 +442,29 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             `);
-            
+
             $('#notificationContainer').append(notification);
-            
+
             setTimeout(() => {
                 notification.alert('close');
             }, 5000);
         }
-        
+
         // API functions
         function fetchCoinData() {
             if (isLoading) return;
-            
+
             isLoading = true;
             showLoading();
             hideError();
-            
+
             const apiUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h';
-            
+
             $.ajax({
                 url: apiUrl,
                 method: 'GET',
                 timeout: 10000,
-                success: function(data) {
+                success: function (data) {
                     coinsData = data;
                     displayCoins(data);
                     updateLastUpdated();
@@ -441,62 +472,62 @@
                     showTable();
                     updatePortfolioValues();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('API Error:', error);
                     showError('Failed to fetch cryptocurrency data. Please check your internet connection and try again.');
                     hideLoading();
                 }
-            }).always(function() {
+            }).always(function () {
                 isLoading = false;
             });
         }
-        
+
         function fetchCoinDetail(coinId) {
             showLoading();
-            
+
             const apiUrl = `https://api.coingecko.com/api/v3/coins/${coinId}`;
-            
+
             $.ajax({
                 url: apiUrl,
                 method: 'GET',
                 timeout: 10000,
-                success: function(data) {
+                success: function (data) {
                     currentCoin = data;
                     displayCoinDetail(data);
                     fetchPriceHistory(coinId);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('API Error:', error);
                     showError('Failed to fetch coin details.');
                     hideLoading();
                 }
             });
         }
-        
+
         function fetchPriceHistory(coinId) {
             const apiUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=eur&days=7`;
-            
+
             $.ajax({
                 url: apiUrl,
                 method: 'GET',
                 timeout: 10000,
-                success: function(data) {
+                success: function (data) {
                     displayPriceChart(data.prices);
                     hideLoading();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Chart API Error:', error);
                     hideLoading();
                 }
             });
         }
-        
+
         // Display functions
         function displayCoins(coins) {
             const tbody = $('#coinsTableBody');
             tbody.empty();
-            
-            coins.forEach(function(coin, index) {
+
+            coins.forEach(function (coin, index) {
                 const row = `
                     <tr class="coin-row" data-coin-id="${coin.id}">
                         <td class="fw-bold">${index + 1}</td>
@@ -518,7 +549,7 @@
                 tbody.append(row);
             });
         }
-        
+
         function displayCoinDetail(coin) {
             const detail = `
                 <div class="row align-items-center mb-4">
@@ -591,26 +622,26 @@
                     </div>
                 </div>
             `;
-            
+
             $('#coinDetail').html(detail);
             $('#coinsListView').addClass('hidden');
             $('#coinDetailView').removeClass('hidden');
         }
-        
+
         function displayPriceChart(priceData) {
             const ctx = document.getElementById('priceChart').getContext('2d');
-            
+
             if (priceChart) {
                 priceChart.destroy();
             }
-            
+
             const labels = priceData.map(point => {
                 const date = new Date(point[0]);
                 return date.toLocaleDateString();
             });
-            
+
             const prices = priceData.map(point => point[1]);
-            
+
             priceChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -632,7 +663,7 @@
                         y: {
                             beginAtZero: false,
                             ticks: {
-                                callback: function(value) {
+                                callback: function (value) {
                                     return '$' + value.toFixed(2);
                                 }
                             }
@@ -641,7 +672,7 @@
                     plugins: {
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return 'Price: $' + context.parsed.y.toFixed(2);
                                 }
                             }
@@ -650,10 +681,10 @@
                 }
             });
         }
-        
+
         function displayPortfolio() {
             const portfolioList = $('#portfolioList');
-            
+
             if (portfolio.length === 0) {
                 portfolioList.html(`
                     <div class="text-center text-muted py-4">
@@ -663,7 +694,7 @@
                 `);
                 return;
             }
-            
+
             let html = '';
             portfolio.forEach((item, index) => {
                 const currentCoin = coinsData.find(coin => coin.id === item.coinId);
@@ -671,7 +702,7 @@
                 const currentValue = item.amount * currentPrice;
                 const profit = currentValue - (item.amount * item.purchasePrice);
                 const profitPercent = ((currentPrice - item.purchasePrice) / item.purchasePrice) * 100;
-                
+
                 html += `
                     <div class="portfolio-item portfolio-card mb-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -695,10 +726,10 @@
                     </div>
                 `;
             });
-            
+
             portfolioList.html(html);
         }
-        
+
         function updatePortfolioValues() {
             if (portfolio.length === 0) {
                 $('#totalValue').text('$0.00');
@@ -706,10 +737,10 @@
                 $('#totalChange').text('+0.00%').removeClass('price-negative').addClass('price-positive');
                 return;
             }
-            
+
             let totalValue = 0;
             let totalInvested = 0;
-            
+
             portfolio.forEach(item => {
                 const currentCoin = coinsData.find(coin => coin.id === item.coinId);
                 if (currentCoin) {
@@ -717,22 +748,22 @@
                     totalInvested += item.amount * item.purchasePrice;
                 }
             });
-            
+
             const totalChange = ((totalValue - totalInvested) / totalInvested) * 100;
-            
+
             $('#totalValue').text(formatPrice(totalValue));
             $('#totalCoins').text(portfolio.length);
             $('#totalChange').text(`${totalChange >= 0 ? '+' : ''}${totalChange.toFixed(2)}%`)
                 .removeClass(totalChange >= 0 ? 'price-negative' : 'price-positive')
                 .addClass(totalChange >= 0 ? 'price-positive' : 'price-negative');
         }
-        
+
         function savePortfolio() {
             localStorage.setItem('cryptoPortfolio', JSON.stringify(portfolio));
             displayPortfolio();
             updatePortfolioValues();
         }
-        
+
         function removeFromPortfolio(index) {
             if (confirm('Are you sure you want to remove this coin from your portfolio?')) {
                 portfolio.splice(index, 1);
@@ -740,109 +771,154 @@
                 showNotification('Coin removed from portfolio', 'success');
             }
         }
-        
+
         // Display control functions
         function showLoading() {
             $('#loadingSpinner').show();
             $('#refreshBtn i').addClass('fa-spin');
         }
-        
+
         function hideLoading() {
             $('#loadingSpinner').hide();
             $('#refreshBtn i').removeClass('fa-spin');
         }
-        
+
         function showError(message) {
             $('#errorMessage').text(message);
             $('#errorAlert').removeClass('d-none');
         }
-        
+
         function hideError() {
             $('#errorAlert').addClass('d-none');
         }
-        
+
         function showTable() {
             $('#coinsTable').removeClass('d-none');
             $('#lastUpdated').removeClass('d-none');
         }
-        
+
         function updateLastUpdated() {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
             $('#updateTime').text(timeString);
         }
-        
+
+        function register() {
+            const username = $('#username').val();
+            const password = $('#password').val();
+
+            if (!username || !password) {
+                $('#message').text('Please fill in all fields.');
+                return;
+            }
+
+            if (localStorage.getItem(username)) {
+                $('#message').text('User already exists.');
+            } else {
+                localStorage.setItem(username, password);
+                $('#message').text('Registered successfully!');
+            }
+        }
+
+        function login() {
+            const username = $('#username').val();
+            const password = $('#password').val();
+            const storedPassword = localStorage.getItem(username);
+
+            if (!storedPassword) {
+                $('#message').text('User not found.');
+            } else if (storedPassword === password) {
+                $('#message').text('Login successful!');
+                localStorage.setItem('loggedInUser', username);
+                $('#loginModal').modal('hide'); // close modal after login
+                checkLogin(); // update UI or unlock portfolio
+            } else {
+                $('#message').text('Incorrect password.');
+            }
+        }
+
+        function checkLogin() {
+            const user = localStorage.getItem('loggedInUser');
+            if (user) {
+                $('#loginBtn').html(`<i class="fas fa-user-check me-2"></i>${user}`);
+                $('#lockOverlay').addClass('hidden'); // if you’re locking portfolio
+            } else {
+                $('#loginBtn').html('<i class="fas fa-user me-2"></i>Login');
+                $('#lockOverlay').removeClass('hidden');
+            }
+        }
+
         // Event handlers
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Initial data fetch
             fetchCoinData();
             displayPortfolio();
-            
+
             // Coin row click handler
-            $(document).on('click', '.coin-row', function() {
+            $(document).on('click', '.coin-row', function () {
                 const coinId = $(this).data('coin-id');
                 fetchCoinDetail(coinId);
             });
-            
+
             // Back to list button
-            $('#backToList').click(function() {
+            $('#backToList').click(function () {
                 $('#coinDetailView').addClass('hidden');
                 $('#coinsListView').removeClass('hidden');
             });
-            
+
             // Refresh button click
-            $('#refreshBtn').click(function() {
+            $('#refreshBtn').click(function () {
                 fetchCoinData();
             });
-            
+
             // Portfolio toggle
-            $('#portfolioToggle').click(function() {
+            $('#portfolioToggle').click(function () {
                 $('#portfolio-tab').tab('show');
             });
-            
+
             // Add to portfolio button
-            $(document).on('click', '.add-to-portfolio-btn', function() {
+            $(document).on('click', '.add-to-portfolio-btn', function () {
                 const coinId = $(this).data('coin-id');
                 const coinSymbol = $(this).data('coin-symbol');
                 const currentPrice = $(this).data('current-price');
-                
+
                 $('#coinId').val(coinId);
                 $('#coinSymbol').val(coinSymbol);
                 $('#purchasePrice').val(currentPrice);
                 $('#amount').val('');
-                
+
                 const modal = new bootstrap.Modal($('#addToPortfolioModal')[0]);
                 modal.show();
             });
-            
+
             // Save to portfolio
-            $('#saveToPortfolio').click(function() {
+            $('#saveToPortfolio').click(function () {
                 const coinId = $('#coinId').val();
                 const coinSymbol = $('#coinSymbol').val();
                 const amount = parseFloat($('#amount').val());
                 const purchasePrice = parseFloat($('#purchasePrice').val());
-                
+
                 if (!amount || !purchasePrice) {
                     showNotification('Please fill all required fields', 'danger');
                     return;
                 }
-                
+
                 // Check if coin already exists in portfolio
                 const existingIndex = portfolio.findIndex(item => item.coinId === coinId);
-                
+
                 if (existingIndex >= 0) {
                     // Update existing entry
                     const existing = portfolio[existingIndex];
                     const totalAmount = existing.amount + amount;
                     const avgPrice = ((existing.amount * existing.purchasePrice) + (amount * purchasePrice)) / totalAmount;
-                    
+
                     portfolio[existingIndex] = {
                         coinId: coinId,
                         coinSymbol: coinSymbol,
                         amount: totalAmount,
                         purchasePrice: avgPrice
                     };
-                    
+
                     showNotification(`Updated ${coinSymbol} in portfolio`, 'success');
                 } else {
                     // Add new entry
@@ -852,52 +928,66 @@
                         amount: amount,
                         purchasePrice: purchasePrice
                     });
-                    
+
                     showNotification(`${coinSymbol} added to portfolio`, 'success');
                 }
-                
+
                 savePortfolio();
                 $('#addToPortfolioModal').modal('hide');
             });
-            
+
+            // When login button is clicked, show the modal
+            $('#loginBtn').on('click', function () {
+                const modal = new bootstrap.Modal($('#loginModal')[0]);
+                modal.show();
+            });
+
+            $('#logoutBtn').on('click', function () {
+                localStorage.removeItem('loggedInUser');
+                checkLogin();
+            });
+
             // Tab change handler
-            $('#portfolio-tab').on('shown.bs.tab', function() {
+            $('#portfolio-tab').on('shown.bs.tab', function () {
                 displayPortfolio();
                 updatePortfolioValues();
             });
-            
+
             // Auto-refresh every 60 seconds
-            setInterval(function() {
+            setInterval(function () {
                 if (!isLoading && $('#market').hasClass('show')) {
                     fetchCoinData();
                 }
             }, 60000);
-            
+
             // Handle API rate limiting gracefully
-            $(document).ajaxError(function(event, xhr, settings, thrownError) {
+            $(document).ajaxError(function (event, xhr, settings, thrownError) {
                 if (xhr.status === 429) {
                     showError('API rate limit exceeded. Please wait a moment before refreshing.');
                 }
             });
         });
-        
+
         // Keyboard shortcuts
-        $(document).keydown(function(e) {
+        $(document).keydown(function (e) {
             // Press 'R' to refresh
             if (e.key === 'r' || e.key === 'R') {
                 e.preventDefault();
                 fetchCoinData();
             }
-            
+
             // Press 'Escape' to go back to list
             if (e.key === 'Escape' && !$('#coinDetailView').hasClass('hidden')) {
                 e.preventDefault();
                 $('#backToList').click();
             }
         });
-        
+
+
+        checkLogin();
         // Make removeFromPortfolio globally accessible
         window.removeFromPortfolio = removeFromPortfolio;
     </script>
 </body>
+
 </html>
